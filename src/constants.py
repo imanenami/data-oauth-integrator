@@ -5,7 +5,7 @@ from typing import Literal
 CHARM_KEY = "data-oauth-integrator"
 REST_PORT = 8080
 SERVICE_NAME = "oauth-webhook"
-SERVICE_PATH = ""
+SERVICE_PATH = f"/etc/systemd/system/{SERVICE_NAME}.service"
 
 Substrates = Literal["vm", "k8s"]
 SUBSTRATE: Substrates = "vm"

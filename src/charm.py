@@ -10,7 +10,7 @@ from ops.charm import (
     UpdateStatusEvent,
 )
 from ops.main import main
-from ops.model import BlockedStatus, MaintenanceStatus
+from ops.model import ActiveStatus, BlockedStatus, MaintenanceStatus
 
 from constants import CHARM_KEY, REST_PORT, SUBSTRATE
 from models import Context
@@ -82,6 +82,12 @@ class IntegratorCharm(CharmBase):
                 )
             )
             return
+
+        event.add_status(
+            ActiveStatus(
+                f"Webhook served at {self.context.unit.internal_address}:{self.workload.port}"
+            )
+        )
 
 
 if __name__ == "__main__":

@@ -205,7 +205,7 @@ class VmWorkload(BaseWorkload):
         return inspect.cleandoc(
             f"""
             [Unit]
-            Description=Kafka Connect Integrator REST API
+            Description=OAuth Webhook
             Wants=network.target
             Requires=network.target
 

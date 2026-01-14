@@ -1,0 +1,6 @@
+options:
+  mapping:
+    type: string
+    default: "{}"
+    description: |
+      A mapping of users/groups

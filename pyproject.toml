@@ -1,0 +1,125 @@
+# Testing tools configuration
+[tool.coverage.run]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+log_cli_level = "INFO"
+asyncio_mode = "auto"
+
+# Formatting tools configuration
+[tool.black]
+line-length = 99
+target-version = ["py310"]
+
+[tool.isort]
+profile = "black"
+
+[tool.poetry]
+# TODO: check
+name = "data-oauth-integrator"
+version = "1.0"
+description = "data-oauth-integrator"
+authors = ["Iman Enami <iman.enami@canonical.com>"]
+package-mode = false
+
+[tool.poetry.dependencies]
+python = ">=3.10,<4.0"
+ops = ">=2.17.0"
+tenacity = ">=8.0.1"
+pure-sasl = ">=0.6.2"
+jsonschema = ">=4.10"
+cryptography = ">42.0.0"
+pydantic = ">=2"
+pyyaml = "^6.0.1"
+requests = "^2.32.3"
+lightkube = "0.15.0"
+fastapi = ">=0.115"
+uvicorn = ">=0.34.0"
+charmlibs-systemd = "^1.0.0"
+pydantic-settings = "^2.12.0"
+
+[tool.poetry.group.render]
+optional = true
+
+[tool.poetry.group.render.dependencies]
+jinja2-cli = "*"
+
+[tool.poetry.group.fmt]
+optional = true
+
+[tool.poetry.group.fmt.dependencies]
+black = "^22.3.0"
+ruff = ">=0.1.0"
+pyright = "^1.1.300"
+
+[tool.poetry.group.lint]
+optional = true
+
+[tool.poetry.group.lint.dependencies]
+black = "^22.3.0"
+ruff = ">=0.1.0"
+codespell = ">=2.2.2"
+pyright = "^1.1.301"
+
+[tool.poetry.group.unit]
+optional = true
+
+[tool.poetry.group.unit.dependencies]
+pytest = ">=7.2"
+coverage = { extras = ["toml"], version = ">7.0" }
+pytest-mock = "^3.11.1"
+ops = { version = ">=2.17.0", extras = ["testing"] }
+
+[tool.poetry.group.integration]
+optional = true
+
+[tool.poetry.group.integration.dependencies]
+pytest = ">=7.2"
+jubilant = ">=1.6"
+coverage = { extras = ["toml"], version = ">7.0" }
+tenacity = ">=7.0"
+requests = ">2.25"
+
+[tool.poetry.group.format.dependencies]
+pyright = "^1.1.301"
+
+[tool.ruff]
+line-length = 99
+lint.select = ["E", "W", "F", "C", "N", "D", "I001"]
+lint.extend-ignore = [
+  "D203",
+  "D204",
+  "D213",
+  "D215",
+  "D400",
+  "D401",
+  "D404",
+  "D406",
+  "D407",
+  "D408",
+  "D409",
+  "D413",
+]
+lint.ignore = ["E501", "D107"]
+extend-exclude = ["__pycache__", "*.egg_info"]
+lint.per-file-ignores = { "tests/*" = ["D100", "D101", "D102", "D103", "D104", "E999"], "src/literals.py" = ["D101"] }
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.pyright]
+include = ["src"]
+extraPaths = ["./lib"]
+pythonVersion = "3.10"
+pythonPlatform = "All"
+typeCheckingMode = "basic"
+reportIncompatibleMethodOverride = false
+reportImportCycles = false
+reportMissingModuleSource = true
+stubPath = ""

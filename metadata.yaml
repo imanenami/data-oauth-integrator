@@ -1,0 +1,20 @@
+name: data-oauth-integrator
+title: Data OAuth Integrator
+description: |
+  Charmed operator for integrations between Data charms and OAuth providers
+summary: Data OAuth Integrator
+links:
+  source:
+  - https://github.com/imanenami/data-oauth-integrator
+  issues:
+  - https://github.com/imanenami/data-oauth-integrator/issues
+
+
+peers:
+  peer:
+    interface: peer
+
+provides:
+  hydra-token-hook:
+    interface: hydra_token_hook
+    optional: true

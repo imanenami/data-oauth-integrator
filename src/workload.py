@@ -39,6 +39,7 @@ class BaseWorkload(ABC):
     charm_dir: Path
     user: str
     group: str
+    api_key: str
 
     def __init__(
         self,
@@ -105,7 +106,7 @@ class BaseWorkload(ABC):
         ...
 
     @abstractmethod
-    def configure(self) -> None:
+    def configure(self, **kwargs) -> None:
         """Makes all necessary configurations to start the server service."""
         ...
 
@@ -177,7 +178,8 @@ class VmWorkload(BaseWorkload):
         service_stop(self.service)
 
     @override
-    def configure(self) -> None:
+    def configure(self, **kwargs) -> None:
+        self.api_key = kwargs.get("api_key", "")
         self.write(content=self.systemd_config + "\n", path=self.service_path)
         daemon_reload()
 
@@ -213,6 +215,7 @@ class VmWorkload(BaseWorkload):
             WorkingDirectory={self.charm_dir}/src/rest
             EnvironmentFile=-/etc/environment
             Environment=PORT={self.port}
+            Environment=API_KEY={self.api_key}
             ExecStart={self.charm_dir}/venv/bin/python {self.charm_dir}/src/rest/entrypoint.py
             Restart=always
             Type=simple

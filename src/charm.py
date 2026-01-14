@@ -43,13 +43,6 @@ class IntegratorCharm(CharmBase):
             base_address=self.context.unit.internal_address,
             port=REST_PORT,
         )
-
-        self.hook_provider_data = ProviderData(
-            url=f"http://{self.context.unit.internal_address}:{self.workload.port}/api/v1/oauth2/hook",
-            auth_config_value=self.context.app.api_key,
-            auth_config_name="X-API-Key",
-            auth_config_in=AuthIn.header,
-        )
         self.hook_provider = HydraHookProvider(self, "hydra-token-hook")
 
     @property
@@ -64,6 +57,15 @@ class IntegratorCharm(CharmBase):
 
         if not self.healthy:
             return
+
+        # Update provider data
+        data = ProviderData(
+            url=f"http://{self.context.unit.internal_address}:{self.workload.port}/api/v1/oauth2/hook",
+            auth_config_value=self.context.app.api_key,
+            auth_config_name="X-API-Key",
+            auth_config_in=AuthIn.header,
+        )
+        self.hook_provider.update_relations_app_data(data)
 
         if self.workload.health_check():
             return
@@ -103,6 +105,7 @@ class IntegratorCharm(CharmBase):
             )
         )
         self.unit.set_ports(REST_PORT)
+        self.reconcile()
 
 
 if __name__ == "__main__":

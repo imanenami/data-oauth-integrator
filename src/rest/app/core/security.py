@@ -8,7 +8,7 @@ from fastapi.security import APIKeyHeader
 
 API_KEY = os.environ.get("API_KEY", "")
 
-api_key_header = APIKeyHeader(name="Bearer", auto_error=False)
+api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
 
 
 async def api_key_security(api_key_value: str = Depends(api_key_header)):

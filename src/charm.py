@@ -47,7 +47,7 @@ class IntegratorCharm(CharmBase):
         self.hook_provider_data = ProviderData(
             url=f"http://{self.context.unit.internal_address}:{self.workload.port}/api/v1/oauth2/hook",
             auth_config_value=self.context.app.api_key,
-            auth_config_name="Bearer",
+            auth_config_name="X-API-Key",
             auth_config_in=AuthIn.header,
         )
         self.hook_provider = HydraHookProvider(self, "hydra-token-hook")

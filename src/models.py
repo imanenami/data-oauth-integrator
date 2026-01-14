@@ -8,7 +8,7 @@ from charms.data_platform_libs.v0.data_interfaces import (
     DataPeerData,
     DataPeerUnitData,
 )
-from ops import ActiveStatus, Object, StatusBase
+from ops import ActiveStatus, MaintenanceStatus, Object, StatusBase
 from ops.model import Application, Relation, Unit
 from typing_extensions import override
 
@@ -171,4 +171,7 @@ class Context(WithStatus, Object):
     @property
     @override
     def status(self) -> StatusBase:
+        if not self.app.api_key:
+            return MaintenanceStatus("Endpoint not configured yet.")
+
         return ACTIVE

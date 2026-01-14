@@ -52,38 +52,39 @@ class IntegratorCharm(CharmBase):
         )
         self.hook_provider = HydraHookProvider(self, "hydra-token-hook")
 
-    def _on_start(self, event: StartEvent) -> None:
-        """Handle `start` event."""
-        if not self.workload.ready:
-            event.defer()
+    @property
+    def healthy(self) -> bool:
+        """Return the overall health status of the charm."""
+        return all([self.context.ready, self.workload.ready])
+
+    def reconcile(self) -> None:
+        """Reconcile the workload and service."""
+        if self.context.app.relation and not self.context.app.api_key:
+            self.context.app.api_key = secrets.token_urlsafe(64)
+
+        if not self.healthy:
             return
 
         if self.workload.health_check():
             return
 
-        self.workload.configure()
+        self.workload.configure(api_key=self.context.app.api_key)
         self.workload.start()
+
+    def _on_start(self, event: StartEvent) -> None:
+        """Handle `start` event."""
+        self.reconcile()
 
     def _update_status(self, event: UpdateStatusEvent) -> None:
         """Handle `update-status` event."""
-        if not self.workload.health_check():
-            self.on.start.emit()
-
-        self.unit.set_ports(REST_PORT)
+        self.reconcile()
 
     def _on_config_changed(self, event: ConfigChangedEvent) -> None:
         """Handle `config-changed` event."""
-        if not self.workload.ready:
-            event.defer()
-            return
-
-        self.workload.configure()
+        self.reconcile()
 
     def _on_collect_status(self, event: CollectStatusEvent):
         """Handle `collect-status` event."""
-        if self.context.app.relation and not self.context.app.api_key:
-            self.context.app.api_key = secrets.token_urlsafe(64)
-
         if not self.workload.health_check():
             event.add_status(MaintenanceStatus("Setting up the integrator..."))
             return
@@ -101,6 +102,7 @@ class IntegratorCharm(CharmBase):
                 f"Webhook served at {self.context.unit.internal_address}:{self.workload.port}"
             )
         )
+        self.unit.set_ports(REST_PORT)
 
 
 if __name__ == "__main__":

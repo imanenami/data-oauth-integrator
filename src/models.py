@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 
 from charms.data_platform_libs.v0.data_interfaces import (
     Data,
+    DataPeerData,
     DataPeerUnitData,
 )
 from ops import ActiveStatus, Object, StatusBase
@@ -108,6 +109,32 @@ class UnitContext(RelationContext):
         return ActiveStatus()
 
 
+class AppContext(RelationContext):
+    """Context collection metadata for peer relation."""
+
+    API_KEY = "api-key"
+
+    def __init__(self, relation, data_interface, component):
+        super().__init__(relation, data_interface, component)
+
+    @property
+    def api_key(self) -> str:
+        """Internal admin user's password."""
+        if not self.relation:
+            return ""
+
+        return self.relation_data.get(self.API_KEY, "")
+
+    @api_key.setter
+    def api_key(self, value: str) -> None:
+        self.update({self.API_KEY: value})
+
+    @property
+    @override
+    def status(self) -> StatusBase:
+        return ActiveStatus()
+
+
 class Context(WithStatus, Object):
     """Context model for the Integrator charm."""
 
@@ -116,6 +143,11 @@ class Context(WithStatus, Object):
         self.substrate = substrate
         self.config = charm.config
 
+        self.peer_app_interface = DataPeerData(
+            self.model,
+            relation_name=PEER_REL,
+            additional_secret_fields=[AppContext.API_KEY],
+        )
         self.peer_unit_interface = DataPeerUnitData(self.model, relation_name=PEER_REL)
 
     @property
@@ -125,6 +157,15 @@ class Context(WithStatus, Object):
             self.model.get_relation(PEER_REL),
             self.peer_unit_interface,
             component=self.model.unit,
+        )
+
+    @property
+    def app(self) -> AppContext:
+        """Returns context of the peer app relation."""
+        return AppContext(
+            self.model.get_relation(PEER_REL),
+            self.peer_app_interface,
+            component=self.model.app,
         )
 
     @property

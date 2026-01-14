@@ -1,7 +1,9 @@
 """Charmed Data-OAuth Integrator Operator."""
 
 import logging
+import secrets
 
+from charms.hydra.v0.hydra_token_hook import AuthIn, HydraHookProvider, ProviderData
 from ops.charm import (
     CharmBase,
     CollectStatusEvent,
@@ -42,6 +44,14 @@ class IntegratorCharm(CharmBase):
             port=REST_PORT,
         )
 
+        self.hook_provider_data = ProviderData(
+            url=f"http://{self.context.unit.internal_address}:{self.workload.port}/api/v1/oauth2/hook",
+            auth_config_value=self.context.app.api_key,
+            auth_config_name="Bearer",
+            auth_config_in=AuthIn.header,
+        )
+        self.hook_provider = HydraHookProvider(self, "hydra-token-hook")
+
     def _on_start(self, event: StartEvent) -> None:
         """Handle `start` event."""
         if not self.workload.ready:
@@ -71,6 +81,9 @@ class IntegratorCharm(CharmBase):
 
     def _on_collect_status(self, event: CollectStatusEvent):
         """Handle `collect-status` event."""
+        if self.context.app.relation and not self.context.app.api_key:
+            self.context.app.api_key = secrets.token_urlsafe(64)
+
         if not self.workload.health_check():
             event.add_status(MaintenanceStatus("Setting up the integrator..."))
             return

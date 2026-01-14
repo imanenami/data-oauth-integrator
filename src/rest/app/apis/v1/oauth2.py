@@ -4,13 +4,14 @@
 """Plugin API routes definition."""
 
 from app.core.models import RequestModel, ResponseModel, ResponseSession
+from app.core.security import api_key_security
 from app.services.claims import process_claims
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
 router = APIRouter()
 
 
-@router.post("/hook")
+@router.post("/hook", dependencies=[Depends(api_key_security)])
 async def claims_hook(r: RequestModel) -> ResponseModel:
     """Handle claims for an incoming request."""
     print(r.request.client_id)
